@@ -1,205 +1,137 @@
-# SmartDesk Mobile - React Native
+# SmartDesk - Mobile App
 
-This is the React Native version of the SmartDesk web application, converted for iOS and Android mobile platforms.
+Uma aplicação mobile para monitoramento e controle inteligente de mesa ergonômica desenvolvida com React Native e Expo.
 
-## Features
+## 👥 Integrantes do Grupo – CATECH
 
-- ✅ User Authentication (Login/Signup)
-- ✅ Real-time Ergonomic Measurements Dashboard
-- ✅ User Profile Management
-- ✅ Premium Plans and Subscription
-- ✅ Personal Data Management
-- ✅ Settings and Preferences
-- ✅ Bottom Tab Navigation
-- ✅ Native Mobile UI/UX
+- **RM559622**: Daniel Santana Corrêa Batista
+- **RM561144**: Jonas de Jesus Campos de Oliveira
+- **RM559336**: Wendell Nascimento Dourado
 
-## Tech Stack
-
-- **React Native** - Mobile framework
-- **Expo** - Development platform
-- **React Navigation** - Navigation library
-- **TypeScript** - Type safety
-- **Ionicons** - Icon library
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- Expo CLI
-- iOS Simulator (for Mac) or Android Emulator
-
-### Installation
-
-1. Install dependencies:
-
-```bash
-cd SmartDesk
-npm install
-```
-
-2. Start the development server:
-
-```bash
-npm start
-```
-
-3. Run on specific platform:
-
-```bash
-# iOS
-npm run ios
-
-# Android
-npm run android
-
-# Web (for testing)
-npm run web
-```
-
-## Project Structure
+## Repositório
 
 ```
-SmartDesk/
-├── App.tsx                 # Main app component with navigation
-├── src/
-│   └── screens/           # All screen components
-│       ├── LoginScreen.tsx
-│       ├── SignupScreen.tsx
-│       ├── MeasurementsScreen.tsx
-│       ├── ProfileScreen.tsx
-│       ├── PremiumScreen.tsx
-│       ├── PersonalDataScreen.tsx
-│       └── SettingsScreen.tsx
-├── assets/                # Images and static assets
-└── package.json
+https://github.com/FIAP-1TDSPS-2024/smart-desk-mobile
 ```
 
-## Key Differences from Web Version
+## Mocks
 
-### Navigation
+- [Login/Cadastro utilizando Async Storage](./src/contexts/AuthContext.tsx)
+- [Serviços de autenticação](./src/services/authService.ts)
 
-- **Web**: Manual state management with conditional rendering
-- **Mobile**: React Navigation with stack and tab navigators
+## 🚀 Tecnologias Utilizadas
 
-### UI Components
+- **React Native** - Framework para desenvolvimento mobile
+- **Expo** - Plataforma para desenvolvimento e build
+- **TypeScript** - Para tipagem estática
+- **Expo Image** - Para carregamento otimizado de imagens
+- **Expo Vector Icons** - Para ícones
+- **React Navigation** - Para navegação entre telas
+- **Async Storage** - Para persistência de dados local
 
-- **Web**: Radix UI components and Tailwind CSS
-- **Mobile**: Native React Native components with StyleSheet
+## 📱 Funcionalidades
 
-### Styling
+- ✅ Sistema de autenticação (Login/Cadastro)
+- ✅ Tela de medições para monitoramento
+- ✅ Perfil do usuário
+- ✅ Dados pessoais editáveis
+- ✅ Tela Premium com funcionalidades exclusivas
+- ✅ Configurações do aplicativo
+- ✅ Navegação por tabs
+- ✅ Interface responsiva
+- ✅ Design moderno e intuitivo
+- ✅ Persistência de sessão
 
-- **Web**: Tailwind CSS classes
-- **Mobile**: StyleSheet API with inline styles
-
-### Icons
-
-- **Web**: Lucide React icons
-- **Mobile**: Ionicons from @expo/vector-icons
-
-### Form Inputs
-
-- **Web**: Custom Input/Button components from UI library
-- **Mobile**: Native TextInput and TouchableOpacity components
-
-## Screens Overview
-
-### LoginScreen
-
-- Email and password authentication
-- Password visibility toggle
-- Remember me checkbox
-- Navigation to signup
-
-### SignupScreen
-
-- Complete registration form
-- Work model selection (Remote/Hybrid/Office)
-- Terms and conditions acceptance
-
-### MeasurementsScreen
-
-- Real-time ergonomic metrics
-- Score cards for different measurements
-- Trend indicators
-- Alert notifications
-- Premium upsell CTA
-
-### ProfileScreen
-
-- User information display
-- Statistics cards
-- Menu navigation
-- Achievement badges
-- Logout functionality
-
-### PremiumScreen
-
-- Three tier plans (Free/Premium/Enterprise)
-- Feature comparison
-- Benefits showcase
-- Testimonials
-- FAQ section
-
-### PersonalDataScreen
-
-- Personal information editing
-- Professional details
-- Health metrics (BMI calculation)
-- Avatar management
-- Account danger zone
-
-### SettingsScreen
-
-- Notification preferences
-- Display settings
-- Sound and vibration
-- Monitoring configuration
-- Privacy settings
-- Data management
-
-## Color Palette
-
-- Primary: `#4F46E5` (Indigo)
-- Secondary: `#9333EA` (Purple)
-- Success: `#10B981` (Green)
-- Warning: `#F59E0B` (Amber)
-- Error: `#EF4444` (Red)
-- Background: `#F9FAFB` (Gray)
-- Text: `#111827` (Dark Gray)
-
-## Navigation Flow
+## 🏗️ Estrutura do Projeto
 
 ```
-Auth Stack:
-├── LoginScreen
-└── SignupScreen
-
-Main Stack:
-├── MainTabs (Bottom Tabs)
-│   ├── MeasurementsScreen
-│   ├── PremiumScreen
-│   └── ProfileScreen
-├── PersonalDataScreen (Modal)
-└── SettingsScreen (Modal)
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── Button.tsx
+│   ├── Card.tsx
+│   ├── Input.tsx
+│   ├── Loading.tsx
+│   ├── PasswordInput.tsx
+│   └── index.ts
+├── contexts/           # Contextos da aplicação
+│   └── AuthContext.tsx
+├── screens/            # Telas da aplicação
+│   ├── LoginScreen.tsx
+│   ├── SignupScreen.tsx
+│   ├── MeasurementsScreen.tsx
+│   ├── ProfileScreen.tsx
+│   ├── PersonalDataScreen.tsx
+│   ├── PremiumScreen.tsx
+│   └── SettingsScreen.tsx
+└── services/           # Serviços e APIs
+    └── authService.ts
 ```
 
-## Future Enhancements
+## 🛠️ Como Executar
 
-- [ ] Add real API integration
-- [ ] Implement push notifications
-- [ ] Add biometric authentication
-- [ ] Integrate with IoT devices
-- [ ] Add offline mode
-- [ ] Implement data synchronization
-- [ ] Add unit and integration tests
-- [ ] Internationalization (i18n)
+1. **Instalar as dependências:**
 
-## License
+   ```bash
+   npm install
+   ```
 
-This project is part of the SmartDesk application suite.
+2. **Executar o projeto:**
 
----
+   ```bash
+   # Para iOS
+   npm run ios
 
-Converted from web to React Native • December 2024
+   # Para Android
+   npm run android
+
+   # Para Web
+   npm run web
+
+   # Para todos (abre o Expo DevTools)
+   npm start
+   ```
+
+3. **Para testar em dispositivo físico:**
+   - Instale o app Expo Go no seu celular
+   - Escaneie o QR Code que aparece no terminal/browser
+
+## 📦 Scripts Disponíveis
+
+- `npm start` - Inicia o servidor Expo
+- `npm run android` - Executa no emulador Android
+- `npm run ios` - Executa no simulador iOS
+- `npm run web` - Executa no navegador web
+
+## 🎨 Design
+
+O app segue um design moderno com:
+
+- Paleta de cores consistente (tema indigo/purple)
+- Interface intuitiva e responsiva
+- Componentes reutilizáveis e customizáveis
+- Suporte a diferentes tamanhos de tela
+- Navegação fluida com tabs e stack navigation
+- Feedback visual para interações do usuário
+
+## 🔐 Sistema de Autenticação
+
+- Login com email e senha
+- Cadastro de novos usuários
+- Validação de dados
+- Persistência de sessão com AsyncStorage
+- Logout seguro
+
+## 📱 Compatibilidade
+
+- **iOS**: 13.0+
+- **Android**: API 21+ (Android 5.0)
+- **Web**: Todos os navegadores modernos
+
+## 🚀 Próximos Passos
+
+- [ ] Integração com API real para backend
+- [ ] Sincronização de dados com dispositivo IoT (mesa inteligente)
+- [ ] Notificações push para lembretes ergonômicos
+- [ ] Gráficos e estatísticas de uso
+- [ ] Sistema de metas e conquistas
+- [ ] Modo escuro

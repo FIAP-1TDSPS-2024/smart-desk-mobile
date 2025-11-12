@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Card, Button } from "../components";
@@ -15,6 +16,7 @@ interface Plan {
   period: string;
   description: string;
   recommended?: boolean;
+  signed?: boolean;
   buttonText: string;
   features: Array<{ text: string; included: boolean }>;
 }
@@ -27,6 +29,7 @@ export default function PremiumScreen() {
       period: "/mês",
       description: "Para começar sua jornada",
       buttonText: "Plano Atual",
+      signed: true,
       features: [
         { text: "Medições básicas", included: true },
         { text: "Histórico de 7 dias", included: true },
@@ -163,7 +166,14 @@ export default function PremiumScreen() {
 
               <Button
                 title={plan.buttonText}
-                onPress={() => console.log(`Selected plan: ${plan.name}`)}
+                onPress={() =>
+                  !plan.signed
+                    ? Alert.alert(
+                        `${plan.name}`,
+                        `Entraremos em contato para finalizar sua assinatura do plano ${plan.name}. Obrigado!`
+                      )
+                    : null
+                }
                 variant={plan.recommended ? "primary" : "secondary"}
                 style={styles.planButton}
               />
