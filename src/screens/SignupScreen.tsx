@@ -2,24 +2,23 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../contexts/AuthContext";
+import { Input, PasswordInput, Button, Card } from "../components";
 
 interface SignupScreenProps {
   navigation: any;
-  onSignup: () => void;
 }
 
-export default function SignupScreen({
-  navigation,
-  onSignup,
-}: SignupScreenProps) {
+export default function SignupScreen({ navigation }: SignupScreenProps) {
+  const { signup } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,15 +27,93 @@ export default function SignupScreen({
     company: "",
     workMode: "hybrid",
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-
-  const handleSignup = () => {
-    onSignup();
-  };
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   const updateFormData = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field in errors) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    };
+
+    if (!formData.name) {
+      newErrors.name = "Nome é obrigatório";
+      valid = false;
+    }
+
+    if (!formData.email) {
+      newErrors.email = "Email é obrigatório";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email inválido";
+      valid = false;
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Senha é obrigatória";
+      valid = false;
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Senha deve ter no mínimo 8 caracteres";
+      valid = false;
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Confirme sua senha";
+      valid = false;
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Senhas não coincidem";
+      valid = false;
+    }
+
+    if (!acceptTerms) {
+      Alert.alert(
+        "Atenção",
+        "Você deve aceitar os termos de uso para continuar"
+      );
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleSignup = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await signup({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        company: formData.company,
+        workMode: formData.workMode,
+      });
+      Alert.alert("Sucesso", "Conta criada com sucesso!");
+      // Navigation is handled automatically by AuthContext state change
+    } catch (error: any) {
+      Alert.alert("Erro", error.message || "Erro ao criar conta");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,41 +140,37 @@ export default function SignupScreen({
           </Text>
         </View>
 
-        <View style={styles.formContainer}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nome Completo</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Seu nome"
-              value={formData.name}
-              onChangeText={(value) => updateFormData("name", value)}
-            />
-          </View>
+        <Card style={styles.formContainer}>
+          <Input
+            label="Nome Completo"
+            placeholder="Seu nome"
+            value={formData.name}
+            onChangeText={(value) => updateFormData("name", value)}
+            error={errors.name}
+            editable={!isLoading}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="seu@email.com"
-              value={formData.email}
-              onChangeText={(value) => updateFormData("email", value)}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+          <Input
+            label="Email"
+            placeholder="seu@email.com"
+            value={formData.email}
+            onChangeText={(value) => updateFormData("email", value)}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            error={errors.email}
+            editable={!isLoading}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Empresa (opcional)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nome da empresa"
-              value={formData.company}
-              onChangeText={(value) => updateFormData("company", value)}
-            />
-          </View>
+          <Input
+            label="Empresa (opcional)"
+            placeholder="Nome da empresa"
+            value={formData.company}
+            onChangeText={(value) => updateFormData("company", value)}
+            editable={!isLoading}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Modelo de Trabalho</Text>
+          <View style={{ marginBottom: 16 }}>
+            <Text style={styles.workModeLabel}>Modelo de Trabalho</Text>
             <View style={styles.pickerContainer}>
               {["remote", "hybrid", "office"].map((mode) => (
                 <TouchableOpacity
@@ -107,6 +180,7 @@ export default function SignupScreen({
                     formData.workMode === mode && styles.pickerOptionSelected,
                   ]}
                   onPress={() => updateFormData("workMode", mode)}
+                  disabled={isLoading}
                 >
                   <Text
                     style={[
@@ -126,40 +200,28 @@ export default function SignupScreen({
             </View>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Senha</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={styles.passwordInput}
-                placeholder="Mínimo 8 caracteres"
-                value={formData.password}
-                onChangeText={(value) => updateFormData("password", value)}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons
-                  name={showPassword ? "eye-off-outline" : "eye-outline"}
-                  size={20}
-                  color="#666"
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <PasswordInput
+            label="Senha"
+            placeholder="Mínimo 8 caracteres"
+            value={formData.password}
+            onChangeText={(value) => updateFormData("password", value)}
+            error={errors.password}
+            editable={!isLoading}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirmar Senha</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite a senha novamente"
-              value={formData.confirmPassword}
-              onChangeText={(value) => updateFormData("confirmPassword", value)}
-              secureTextEntry={true}
-            />
-          </View>
+          <PasswordInput
+            label="Confirmar Senha"
+            placeholder="Digite a senha novamente"
+            value={formData.confirmPassword}
+            onChangeText={(value) => updateFormData("confirmPassword", value)}
+            error={errors.confirmPassword}
+            editable={!isLoading}
+          />
 
           <TouchableOpacity
             style={styles.checkboxRow}
             onPress={() => setAcceptTerms(!acceptTerms)}
+            disabled={isLoading}
           >
             <Ionicons
               name={acceptTerms ? "checkbox" : "square-outline"}
@@ -172,17 +234,23 @@ export default function SignupScreen({
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
-            <Text style={styles.signupButtonText}>Criar Conta</Text>
-          </TouchableOpacity>
+          <Button
+            title={isLoading ? "Criando..." : "Criar Conta"}
+            onPress={handleSignup}
+            disabled={isLoading}
+            style={{ marginBottom: 20 }}
+          />
 
           <View style={styles.loginRow}>
             <Text style={styles.loginText}>Já tem uma conta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Login")}
+              disabled={isLoading}
+            >
               <Text style={styles.loginLink}>Faça login</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Card>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -235,44 +303,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   formContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
     marginBottom: 30,
   },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
+  workModeLabel: {
     fontSize: 14,
     fontWeight: "600",
     color: "#333",
     marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
-  },
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-  },
-  passwordInput: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
   },
   pickerContainer: {
     flexDirection: "row",
@@ -313,18 +350,6 @@ const styles = StyleSheet.create({
   },
   link: {
     color: "#4F46E5",
-    fontWeight: "600",
-  },
-  signupButton: {
-    backgroundColor: "#4F46E5",
-    padding: 16,
-    borderRadius: 10,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  signupButtonText: {
-    color: "#fff",
-    fontSize: 16,
     fontWeight: "600",
   },
   loginRow: {

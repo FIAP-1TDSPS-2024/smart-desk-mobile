@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
+import { Loading } from "./src/components";
 
 // Import screens
 import LoginScreen from "./src/screens/LoginScreen";
@@ -40,9 +42,11 @@ function MainTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Measurements" options={{ tabBarLabel: "Medições" }}>
-        {(props) => <MeasurementsScreen navigator={props.navigation} />}
-      </Tab.Screen>
+      <Tab.Screen
+        name="Measurements"
+        options={{ tabBarLabel: "Medições" }}
+        component={MeasurementsScreen}
+      />
       <Tab.Screen
         name="Premium"
         component={PremiumScreen}
@@ -57,41 +61,37 @@ function MainTabs() {
   );
 }
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+function AppNavigator() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <Loading message="Carregando..." />;
+  }
 
   return (
-    <>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {!isLoggedIn ? (
-            <>
-              <Stack.Screen name="Login">
-                {(props) => (
-                  <LoginScreen {...props} onLogin={() => setIsLoggedIn(true)} />
-                )}
-              </Stack.Screen>
-              <Stack.Screen name="Signup">
-                {(props) => (
-                  <SignupScreen
-                    {...props}
-                    onSignup={() => setIsLoggedIn(true)}
-                  />
-                )}
-              </Stack.Screen>
-            </>
-          ) : (
-            <>
-              <Stack.Screen name="MainTabs" component={MainTabs} />
-              <Stack.Screen
-                name="PersonalData"
-                component={PersonalDataScreen}
-              />
-              <Stack.Screen name="Settings" component={SettingsScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!isAuthenticated ? (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Signup" component={SignupScreen} />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="MainTabs" component={MainTabs} />
+            <Stack.Screen name="PersonalData" component={PersonalDataScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
 }

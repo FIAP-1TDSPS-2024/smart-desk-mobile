@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Card, Button } from "../components";
 
 interface Plan {
   name: string;
@@ -115,12 +116,13 @@ export default function PremiumScreen() {
         <View style={styles.content}>
           {/* Plans */}
           {plans.map((plan, index) => (
-            <View
+            <Card
               key={index}
-              style={[
-                styles.planCard,
-                plan.recommended && styles.planCardRecommended,
-              ]}
+              style={
+                plan.recommended
+                  ? [styles.planCard, styles.planCardRecommended]
+                  : styles.planCard
+              }
             >
               {plan.recommended && (
                 <View style={styles.recommendedBadge}>
@@ -159,26 +161,17 @@ export default function PremiumScreen() {
                 ))}
               </View>
 
-              <TouchableOpacity
-                style={[
-                  styles.planButton,
-                  plan.recommended && styles.planButtonPrimary,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.planButtonText,
-                    plan.recommended && styles.planButtonTextPrimary,
-                  ]}
-                >
-                  {plan.buttonText}
-                </Text>
-              </TouchableOpacity>
-            </View>
+              <Button
+                title={plan.buttonText}
+                onPress={() => console.log(`Selected plan: ${plan.name}`)}
+                variant={plan.recommended ? "primary" : "secondary"}
+                style={styles.planButton}
+              />
+            </Card>
           ))}
 
           {/* Benefits */}
-          <View style={styles.benefitsCard}>
+          <Card style={styles.benefitsCard}>
             <Text style={styles.benefitsTitle}>Por que Premium?</Text>
             {benefits.map((benefit, index) => (
               <View key={index} style={styles.benefitRow}>
@@ -197,34 +190,7 @@ export default function PremiumScreen() {
                 </View>
               </View>
             ))}
-          </View>
-
-          {/* Testimonial */}
-          <View style={styles.testimonialCard}>
-            <View style={styles.testimonialHeader}>
-              <View style={styles.testimonialAvatar}>
-                <Text style={styles.testimonialAvatarText}>👤</Text>
-              </View>
-              <View>
-                <Text style={styles.testimonialName}>Maria Santos</Text>
-                <Text style={styles.testimonialRole}>
-                  Desenvolvedora Full Stack
-                </Text>
-              </View>
-            </View>
-            <Text style={styles.testimonialText}>
-              "O Smart-Desk Premium mudou minha rotina de trabalho. Desde que
-              comecei a usar, minhas dores nas costas diminuíram 80% e me sinto
-              muito mais produtiva!"
-            </Text>
-            <View style={styles.testimonialStars}>
-              {[...Array(5)].map((_, i) => (
-                <Text key={i} style={styles.star}>
-                  ⭐
-                </Text>
-              ))}
-            </View>
-          </View>
+          </Card>
 
           {/* Support */}
           <Text style={styles.supportText}>
@@ -270,9 +236,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   planCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
     marginBottom: 16,
     borderWidth: 2,
     borderColor: "#E5E7EB",
@@ -342,26 +305,9 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
   },
   planButton: {
-    backgroundColor: "#F3F4F6",
-    padding: 16,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  planButtonPrimary: {
-    backgroundColor: "#4F46E5",
-  },
-  planButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#374151",
-  },
-  planButtonTextPrimary: {
-    color: "#fff",
+    marginTop: 0,
   },
   benefitsCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
     marginBottom: 16,
   },
   benefitsTitle: {

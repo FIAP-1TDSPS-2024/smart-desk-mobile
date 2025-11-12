@@ -9,11 +9,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 interface MeasurementsScreenProps {
-  navigator: any;
+  navigation: any;
 }
 
 export default function MeasurementsScreen({
-  navigator,
+  navigation,
 }: MeasurementsScreenProps) {
   const measurements = [
     {
@@ -200,7 +200,7 @@ export default function MeasurementsScreen({
           </Text>
           <TouchableOpacity
             style={styles.premiumButton}
-            onPress={() => navigator.navigate("Premium")}
+            onPress={() => navigation.navigate("Premium")}
           >
             <Text style={styles.premiumButtonText}>Ver Planos</Text>
           </TouchableOpacity>

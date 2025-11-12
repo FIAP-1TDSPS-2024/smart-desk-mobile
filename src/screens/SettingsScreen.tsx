@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Card } from "../components";
 
 interface SettingsScreenProps {
   navigation: any;
@@ -82,16 +83,9 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Notifications */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons
-                name="notifications-outline"
-                size={20}
-                color="#4F46E5"
-              />
-              <Text style={styles.sectionTitle}>Notificações</Text>
-            </View>
+          {/* Notifications Section */}
+          <Card style={styles.section}>
+            <Text style={styles.sectionTitle}>Notificações</Text>
             <SettingRow
               icon="notifications"
               title="Notificações Push"
@@ -128,10 +122,10 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
               description="Análise semanal às segundas"
               settingKey="weeklyReport"
             />
-          </View>
+          </Card>
 
           {/* Display */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons
                 name="phone-portrait-outline"
@@ -152,10 +146,10 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
               description="Menos movimento na interface"
               settingKey="reducedMotion"
             />
-          </View>
+          </Card>
 
           {/* Sound */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="volume-high-outline" size={20} color="#4F46E5" />
               <Text style={styles.sectionTitle}>Som e Vibração</Text>
@@ -172,10 +166,10 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
               description="Feedback tátil"
               settingKey="vibration"
             />
-          </View>
+          </Card>
 
           {/* Monitoring */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="desktop-outline" size={20} color="#4F46E5" />
               <Text style={styles.sectionTitle}>Monitoramento</Text>
@@ -192,10 +186,10 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
               description="IA adapta alertas ao seu padrão"
               settingKey="smartAlerts"
             />
-          </View>
+          </Card>
 
           {/* Privacy */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons
                 name="shield-checkmark-outline"
@@ -225,10 +219,10 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
             <TouchableOpacity style={styles.linkButton}>
               <Text style={styles.linkText}>Ver Política de Privacidade</Text>
             </TouchableOpacity>
-          </View>
+          </Card>
 
           {/* Data Management */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="server-outline" size={20} color="#4F46E5" />
               <Text style={styles.sectionTitle}>Gerenciamento de Dados</Text>
@@ -264,7 +258,7 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
               </View>
               <Ionicons name="chevron-forward" size={20} color="#EF4444" />
             </TouchableOpacity>
-          </View>
+          </Card>
 
           {/* About */}
           <View style={styles.aboutSection}>
@@ -324,9 +318,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   section: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
     marginBottom: 16,
   },
   sectionHeader: {

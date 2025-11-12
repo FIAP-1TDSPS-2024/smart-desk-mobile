@@ -5,14 +5,37 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../contexts/AuthContext";
 
 interface ProfileScreenProps {
   navigation: any;
 }
 
 export default function ProfileScreen({ navigation }: ProfileScreenProps) {
+  const { user, logout } = useAuth();
+  const handleLogout = () => {
+    Alert.alert("Sair da Conta", "Tem certeza que deseja sair?", [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Sair",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await logout();
+          } catch (error: any) {
+            Alert.alert("Erro", error.message || "Erro ao fazer logout");
+          }
+        },
+      },
+    ]);
+  };
+
   const stats = [
     { label: "Score Médio", value: "72/100", icon: "📊" },
     { label: "Dias Ativos", value: "45", icon: "🔥" },
@@ -56,10 +79,19 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>JD</Text>
+            <Text style={styles.avatarText}>
+              {user?.name
+                ?.split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase() || "U"}
+            </Text>
           </View>
-          <Text style={styles.userName}>João da Silva</Text>
-          <Text style={styles.userEmail}>joao.silva@email.com</Text>
+          <Text style={styles.userName}>{user?.name || "Usuário"}</Text>
+          <Text style={styles.userEmail}>
+            {user?.email || "email@exemplo.com"}
+          </Text>
           <View style={styles.planBadge}>
             <Text style={styles.planText}>Plano Gratuito</Text>
             <TouchableOpacity>
@@ -106,22 +138,8 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             ))}
           </View>
 
-          {/* Achievements */}
-          <View style={styles.achievementsCard}>
-            <Text style={styles.achievementsTitle}>Conquistas Recentes</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.achievementsContainer}>
-                {achievements.map((emoji, index) => (
-                  <View key={index} style={styles.achievementBadge}>
-                    <Text style={styles.achievementEmoji}>{emoji}</Text>
-                  </View>
-                ))}
-              </View>
-            </ScrollView>
-          </View>
-
           {/* Logout Button */}
-          <TouchableOpacity style={styles.logoutButton}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={20} color="#EF4444" />
             <Text style={styles.logoutText}>Sair da Conta</Text>
           </TouchableOpacity>

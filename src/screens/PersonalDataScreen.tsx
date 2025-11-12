@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../contexts/AuthContext";
+import { Input, Button, Card } from "../components";
 
 interface PersonalDataScreenProps {
   navigation: any;
@@ -17,27 +18,98 @@ interface PersonalDataScreenProps {
 export default function PersonalDataScreen({
   navigation,
 }: PersonalDataScreenProps) {
+  const { user, updateUser, deleteUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
-    name: "João da Silva",
-    email: "joao.silva@email.com",
-    phone: "+55 11 98765-4321",
-    birthDate: "1990-05-15",
-    address: "São Paulo, SP",
-    company: "Tech Solutions LTDA",
-    position: "Desenvolvedor Full Stack",
-    workModel: "hybrid",
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    birthDate: "",
+    address: "",
+    company: user?.company || "",
+    position: user?.position || "",
+    workModel: user?.workMode || "hybrid",
     workHours: "09:00-18:00",
     height: "175",
     weight: "75",
   });
 
+  const handleDeleteUser = () => {
+    Alert.alert("Excluir conta", "Tem certeza que deseja excluir sua conta?", [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Excluir",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteUser();
+          } catch (error: any) {
+            Alert.alert("Erro", error.message || "Erro ao fazer logout");
+          }
+        },
+      },
+    ]);
+  };
+
+  // Update form data when user data changes
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        company: user.company || prev.company,
+        position: user.position || prev.position,
+        workModel: user.workMode || prev.workModel,
+      }));
+    }
+  }, [user]);
+
   const updateFormData = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    Alert.alert("Sucesso", "Dados atualizados com sucesso!");
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      // Update user data in AsyncStorage via AuthContext
+      await updateUser({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        position: formData.position,
+        workMode: formData.workModel,
+      });
+
+      Alert.alert("Sucesso", "Dados atualizados com sucesso!");
+      setIsEditing(false);
+    } catch (error: any) {
+      Alert.alert("Erro", error.message || "Erro ao atualizar dados");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    // Restore original data from user context
+    if (user) {
+      setFormData({
+        ...formData,
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        company: user.company || "",
+        position: user.position || "",
+        workModel: user.workMode || "hybrid",
+      });
+    }
     setIsEditing(false);
   };
 
@@ -59,12 +131,15 @@ export default function PersonalDataScreen({
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Dados Pessoais</Text>
         {!isEditing ? (
-          <TouchableOpacity onPress={() => setIsEditing(true)}>
+          <TouchableOpacity
+            onPress={() => setIsEditing(true)}
+            disabled={isLoading}
+          >
             <Text style={styles.editButton}>Editar</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.headerButtons}>
-            <TouchableOpacity onPress={() => setIsEditing(false)}>
+            <TouchableOpacity onPress={handleCancel} disabled={isLoading}>
               <Text style={styles.cancelButton}>Cancelar</Text>
             </TouchableOpacity>
           </View>
@@ -97,94 +172,81 @@ export default function PersonalDataScreen({
           </View>
 
           {/* Personal Information */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="person-outline" size={20} color="#4F46E5" />
               <Text style={styles.sectionTitle}>Informações Pessoais</Text>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Nome Completo</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.name}
-                onChangeText={(value) => updateFormData("name", value)}
-                editable={isEditing}
-              />
-            </View>
+            <Input
+              label="Nome Completo"
+              value={formData.name}
+              onChangeText={(value) => updateFormData("name", value)}
+              editable={isEditing}
+              placeholder="Seu nome completo"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.email}
-                onChangeText={(value) => updateFormData("email", value)}
-                editable={isEditing}
-                keyboardType="email-address"
-              />
-            </View>
+            <Input
+              label="Email"
+              value={formData.email}
+              onChangeText={(value) => updateFormData("email", value)}
+              editable={isEditing}
+              keyboardType="email-address"
+              placeholder="seu@email.com"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Telefone</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.phone}
-                onChangeText={(value) => updateFormData("phone", value)}
-                editable={isEditing}
-                keyboardType="phone-pad"
-              />
-            </View>
+            <Input
+              label="Telefone"
+              value={formData.phone}
+              onChangeText={(value) => updateFormData("phone", value)}
+              editable={isEditing}
+              keyboardType="phone-pad"
+              placeholder="+55 11 99999-9999"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Data de Nascimento</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.birthDate}
-                onChangeText={(value) => updateFormData("birthDate", value)}
-                editable={isEditing}
-              />
-            </View>
+            <Input
+              label="Data de Nascimento"
+              value={formData.birthDate}
+              onChangeText={(value) => updateFormData("birthDate", value)}
+              editable={isEditing}
+              placeholder="1990-01-01"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Endereço</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.address}
-                onChangeText={(value) => updateFormData("address", value)}
-                editable={isEditing}
-              />
-            </View>
-          </View>
+            <Input
+              label="Endereço"
+              value={formData.address}
+              onChangeText={(value) => updateFormData("address", value)}
+              editable={isEditing}
+              placeholder="Cidade, Estado"
+              containerStyle={{ marginBottom: 0 }}
+            />
+          </Card>
 
           {/* Work Information */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="briefcase-outline" size={20} color="#4F46E5" />
               <Text style={styles.sectionTitle}>Informações Profissionais</Text>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Empresa</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.company}
-                onChangeText={(value) => updateFormData("company", value)}
-                editable={isEditing}
-              />
-            </View>
+            <Input
+              label="Empresa"
+              value={formData.company}
+              onChangeText={(value) => updateFormData("company", value)}
+              editable={isEditing}
+              placeholder="Nome da empresa"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Cargo</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.position}
-                onChangeText={(value) => updateFormData("position", value)}
-                editable={isEditing}
-              />
-            </View>
+            <Input
+              label="Cargo"
+              value={formData.position}
+              onChangeText={(value) => updateFormData("position", value)}
+              editable={isEditing}
+              placeholder="Seu cargo"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Modelo de Trabalho</Text>
+            <View style={{ marginBottom: 16 }}>
+              <Text style={styles.workModeLabel}>Modelo de Trabalho</Text>
               <View style={styles.pickerContainer}>
                 {["remote", "hybrid", "office"].map((mode) => (
                   <TouchableOpacity
@@ -218,47 +280,43 @@ export default function PersonalDataScreen({
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Horário de Trabalho</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.workHours}
-                onChangeText={(value) => updateFormData("workHours", value)}
-                editable={isEditing}
-                placeholder="09:00-18:00"
-              />
-            </View>
-          </View>
+            <Input
+              label="Horário de Trabalho"
+              value={formData.workHours}
+              onChangeText={(value) => updateFormData("workHours", value)}
+              editable={isEditing}
+              placeholder="09:00-18:00"
+              containerStyle={{ marginBottom: 0 }}
+            />
+          </Card>
 
           {/* Health Information */}
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.healthIcon}>💪</Text>
               <Text style={styles.sectionTitle}>Informações de Saúde</Text>
             </View>
 
             <View style={styles.row}>
-              <View style={[styles.inputGroup, styles.halfWidth]}>
-                <Text style={styles.label}>Altura (cm)</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.height}
-                  onChangeText={(value) => updateFormData("height", value)}
-                  editable={isEditing}
-                  keyboardType="numeric"
-                />
-              </View>
+              <Input
+                label="Altura (cm)"
+                value={formData.height}
+                onChangeText={(value) => updateFormData("height", value)}
+                editable={isEditing}
+                keyboardType="numeric"
+                placeholder="175"
+                containerStyle={styles.halfWidth}
+              />
 
-              <View style={[styles.inputGroup, styles.halfWidth]}>
-                <Text style={styles.label}>Peso (kg)</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.weight}
-                  onChangeText={(value) => updateFormData("weight", value)}
-                  editable={isEditing}
-                  keyboardType="numeric"
-                />
-              </View>
+              <Input
+                label="Peso (kg)"
+                value={formData.weight}
+                onChangeText={(value) => updateFormData("weight", value)}
+                editable={isEditing}
+                keyboardType="numeric"
+                placeholder="75"
+                containerStyle={styles.halfWidth}
+              />
             </View>
 
             {formData.height && formData.weight && (
@@ -269,13 +327,15 @@ export default function PersonalDataScreen({
                 <Text style={styles.bmiValue}>{calculateBMI()} - Normal</Text>
               </View>
             )}
-          </View>
+          </Card>
 
           {isEditing && (
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Ionicons name="checkmark-circle" size={20} color="#fff" />
-              <Text style={styles.saveButtonText}>Salvar Alterações</Text>
-            </TouchableOpacity>
+            <Button
+              title={isLoading ? "Salvando..." : "Salvar Alterações"}
+              onPress={handleSave}
+              disabled={isLoading}
+              style={styles.saveButton}
+            />
           )}
 
           {/* Danger Zone */}
@@ -284,12 +344,10 @@ export default function PersonalDataScreen({
             <Text style={styles.dangerDescription}>
               Ações irreversíveis que afetam sua conta
             </Text>
-            <TouchableOpacity style={styles.dangerButton}>
-              <Text style={styles.dangerButtonText}>
-                Exportar Todos os Dados
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dangerButton}>
+            <TouchableOpacity
+              style={styles.dangerButton}
+              onPress={handleDeleteUser}
+            >
               <Text style={styles.dangerButtonText}>
                 Excluir Conta Permanentemente
               </Text>
@@ -392,9 +450,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   section: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
     marginBottom: 16,
   },
   sectionHeader: {
@@ -411,30 +466,20 @@ const styles = StyleSheet.create({
   healthIcon: {
     fontSize: 20,
   },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
+  workModeLabel: {
     fontSize: 14,
     fontWeight: "600",
     color: "#374151",
     marginBottom: 8,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
-    color: "#111827",
-    backgroundColor: "#fff",
-  },
   row: {
     flexDirection: "row",
     gap: 12,
+    marginBottom: 0,
   },
   halfWidth: {
     flex: 1,
+    marginBottom: 0,
   },
   pickerContainer: {
     flexDirection: "row",
@@ -483,19 +528,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   saveButton: {
-    backgroundColor: "#4F46E5",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    padding: 16,
-    borderRadius: 12,
     marginBottom: 16,
-  },
-  saveButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
   },
   dangerSection: {
     backgroundColor: "#FEF2F2",
