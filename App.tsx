@@ -14,6 +14,7 @@ import ProfileScreen from "./src/screens/ProfileScreen";
 import PremiumScreen from "./src/screens/PremiumScreen";
 import PersonalDataScreen from "./src/screens/PersonalDataScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
+import NotificationsScreen from "./src/screens/NotificationsScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -81,6 +82,10 @@ function AppNavigator() {
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen name="PersonalData" component={PersonalDataScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+            />
           </>
         )}
       </Stack.Navigator>

@@ -101,6 +101,13 @@ export default function MeasurementsScreen({
           <Text style={styles.headerTitle}>Medições</Text>
           <Text style={styles.headerSubtitle}>Monitoramento em tempo real</Text>
         </View>
+        <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={() => navigation.navigate("Notifications")}
+        >
+          <Ionicons name="notifications-outline" size={24} color="#111827" />
+          <View style={styles.notificationBadge} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
